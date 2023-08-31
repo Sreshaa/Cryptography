@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <string.h>
+
+#define SIZE 5
+
+void generateKeyMatrix(char key[], char keyMatrix[][SIZE]) {
+    int i, j, k, flag = 0, *dicty;
+    dicty = (int *)calloc(26, sizeof(int));
+
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            if (flag == 0) {
+                for (k = 0; k < strlen(key); k++) {
+                    if (key[k] == 97 + dicty[key[k] - 97]) {
+                        keyMatrix[i][j] = key[k];
+                        dicty[key[k] - 97] = -1;
+                        break;
+                    }
+                }
+                flag = 1;
+            } else {
+                int isPresent;
+                do {
+                    isPresent = 0;
+                    keyMatrix[i][j] = 97 + dicty[i * 5 + j];
+                    for (k = 0; k < strlen(key); k++) {
+                        if (key[k] == keyMatrix[i][j]) {
+                            isPresent = 1;
+                            dicty[i * 5 + j]++;
+                            break;
+                        }
+                    }
+                } while (isPresent);
+            }
+        }
+    }
+}
+
+void formatMessage(char message[], char newMessage[]) {
+    int i = 0, j = 0;
+    while (i < strlen(message)) {
+        if (message[i] == 'j') {
+            newMessage[j++] = 'i';
+        } else {
+            newMessage[j++] = message[i];
+        }
+        i++;
+    }
+    newMessage[j] = '\0';
+}
+
+void playfairEncrypt(char message[], char keyMatrix[][SIZE]) {
+    char newMessage[100], encryptedMessage[100];
+    formatMessage(message, newMessage);
+
+    int i = 0;
+    while (i < strlen(newMessage)) {
+        int row1, col1, row2, col2;
+        for (int j = 0; j < SIZE; j++) {
+            for (int k = 0; k < SIZE; k++) {
+                if (newMessage[i] == keyMatrix[j][k]) {
+                    row1 = j;
+                    col1 = k;
+                }
+                if (newMessage[i + 1] == keyMatrix[j][k]) {
+                    row2 = j;
+                    col2 = k;
+                }
+            }
+        }
+
+        if (row1 == row2) {
+            encryptedMessage[i] = keyMatrix[row1][(col1 + 1) % SIZE];
+            encryptedMessage[i + 1] = keyMatrix[row2][(col2 + 1) % SIZE];
+        } else if (col1 == col2) {
+            encryptedMessage[i] = keyMatrix[(row1 + 1) % SIZE][col1];
+            encryptedMessage[i + 1] = keyMatrix[(row2 + 1) % SIZE][col2];
+        } else {
+            encryptedMessage[i] = keyMatrix[row1][col2];
+            encryptedMessage[i + 1] = keyMatrix[row2][col1];
+        }
+
+        i += 2;
+    }
+
+    encryptedMessage[i] = '\0';
+    printf("Encrypted message: %s\n", encryptedMessage);
+}
+
+int main() {
+    char key[100], message[100], keyMatrix[SIZE][SIZE];
+
+    printf("Enter the key: ");
+    scanf("%s", key);
+
+    printf("Enter the message: ");
+    scanf("%s", message);
+
+    generateKeyMatrix(key, keyMatrix);
+    playfairEncrypt(message, keyMatrix);
+
+    return 0;
+}
