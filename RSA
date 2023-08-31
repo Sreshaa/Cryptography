@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+// Simple function to check if a number is prime
+int isPrime(int n) {
+    if (n <= 1) return 0;
+    if (n <= 3) return 1;
+
+    if (n % 2 == 0 || n % 3 == 0) return 0;
+
+    for (int i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) return 0;
+    }
+
+    return 1;
+}
+
+// Function to calculate the greatest common divisor (GCD)
+int gcd(int a, int b) {
+    if (b == 0) return a;
+    return gcd(b, a % b);
+}
+
+// Function to generate RSA keys
+void generateRSAKeys(int p, int q, int *publicKey, int *privateKey) {
+    int n = p * q;
+    int phi = (p - 1) * (q - 1);
+
+    // Find a suitable e (public key)
+    int e = 2;
+    while (e < phi) {
+        if (gcd(e, phi) == 1) break;
+        e++;
+    }
+
+    // Find d (private key) such that (d * e) % phi = 1
+    int d = 2;
+    while (d < phi) {
+        if ((d * e) % phi == 1) break;
+        d++;
+    }
+
+    *publicKey = e;
+    *privateKey = d;
+}
+
+// Function to perform RSA encryption
+int rsaEncrypt(int message, int publicKey, int n) {
+    return (int) pow(message, publicKey) % n;
+}
+
+int main() {
+    int p = 17;
+    int q = 19;
+    int publicKey, privateKey;
+
+    if (!isPrime(p) || !isPrime(q)) {
+        printf("Both p and q must be prime numbers.\n");
+        return 1;
+    }
+
+    generateRSAKeys(p, q, &publicKey, &privateKey);
+
+    int n = p * q;
+    int message = 88;
+
+    int encrypted = rsaEncrypt(message, publicKey, n);
+    printf("Encrypted message: %d\n", encrypted);
+
+    return 0;
+}
