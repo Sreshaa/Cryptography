@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <math.h>
+
+// Function to calculate power
+int power(int base, int exp, int mod) {
+    int result = 1;
+    base = base % mod;
+
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+
+        exp = exp / 2;
+        base = (base * base) % mod;
+    }
+
+    return result;
+}
+
+int main() {
+    int prime, primitiveRoot;
+    printf("Enter the prime number (p): ");
+    scanf("%d", &prime);
+
+    printf("Enter the primitive root (g): ");
+    scanf("%d", &primitiveRoot);
+
+    int privateA, privateB;
+    printf("Enter the private key of Alice: ");
+    scanf("%d", &privateA);
+
+    printf("Enter the private key of Bob: ");
+    scanf("%d", &privateB);
+
+    int publicA = power(primitiveRoot, privateA, prime);
+    int publicB = power(primitiveRoot, privateB, prime);
+
+    printf("Public key of Alice: %d\n", publicA);
+    printf("Public key of Bob: %d\n", publicB);
+
+    int secretA = power(publicB, privateA, prime);
+    int secretB = power(publicA, privateB, prime);
+
+    printf("Shared secret of Alice: %d\n", secretA);
+    printf("Shared secret of Bob: %d\n", secretB);
+
+    return 0;
+}
