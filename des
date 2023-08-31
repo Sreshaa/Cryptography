@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+typedef uint64_t DES_block;
+
+// Sample key, you should generate a proper key
+DES_block key = 0x133457799BBCDFF1;
+
+// Sample input data
+DES_block input = 0x0123456789ABCDEF;
+
+// Sample DES S-boxes (you would need to provide the actual values)
+uint8_t SBox[8][64];
+
+// Initial permutation
+DES_block initialPermutation(DES_block block) {
+    // Implement initial permutation logic
+}
+
+// Final permutation (inverse of initial permutation)
+DES_block finalPermutation(DES_block block) {
+    // Implement final permutation logic
+}
+
+// DES round function
+DES_block roundFunction(DES_block block, DES_block roundKey) {
+    // Implement DES round function logic
+}
+
+// Generate subkeys
+void generateSubkeys(DES_block mainKey, DES_block subkeys[16]) {
+    // Implement subkey generation logic
+}
+
+// DES encryption function
+DES_block desEncrypt(DES_block inputBlock, DES_block key) {
+    DES_block subkeys[16];
+    generateSubkeys(key, subkeys);
+
+    // Implement DES encryption logic using rounds and subkeys
+
+    return inputBlock; // Return the encrypted block
+}
+
+int main() {
+    DES_block encrypted;
+
+    printf("Original Data: 0x%016llx\n", input);
+
+    // Apply DES encryption
+    encrypted = desEncrypt(input, key);
+
+    printf("Encrypted Data: 0x%016llx\n", encrypted);
+
+    return 0;
+}
