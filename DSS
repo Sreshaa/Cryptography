@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+// DSA parameters
+uint64_t p = 0; // Large prime
+uint64_t q = 0; // Large prime divisor of p-1
+uint64_t g = 0; // Generator of the multiplicative group
+
+uint64_t privateKey = 0; // Private key
+uint64_t publicKey = 0;  // Public key
+
+// Function to calculate modular exponentiation
+uint64_t modExp(uint64_t base, uint64_t exp, uint64_t mod) {
+    uint64_t result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp = exp >> 1;
+    }
+    return result;
+}
+
+// Function to sign a message
+uint64_t signMessage(uint64_t message) {
+    uint64_t k = 123; // Random k value
+    uint64_t r = modExp(g, k, p) % q;
+
+    uint64_t s = ((message + privateKey * r) * modExp(k, q - 2, q)) % q;
+
+    return (r << 32) | s;
+}
+
+// Function to verify a signature
+int verifySignature(uint64_t message, uint64_t signature) {
+    uint64_t r = signature >> 32;
+    uint64_t s = signature & 0xFFFFFFFF;
+
+    if (r <= 0 || r >= q || s <= 0 || s >= q) {
+        return 0; // Invalid signature
+    }
+
+    uint64_t w = modExp(s, q - 2, q);
+    uint64_t u1 = (message * w) % q;
+    uint64_t u2 = (r * w) % q;
+
+    uint64_t v = ((modExp(g, u1, p) * modExp(publicKey, u2, p)) % p) % q;
+
+    return v == r; // Return 1 if signature is valid, 0 otherwise
+}
+
+int main() {
+    // Set your DSA parameters and keys
+    p = ...;
+    q = ...;
+    g = ...;
+    privateKey = ...;
+    publicKey = ...;
+
+    uint64_t message = 12345;
+    uint64_t signature = signMessage(message);
+
+    if (verifySignature(message, signature)) {
+        printf("Signature is valid.\n");
+    } else {
+        printf("Signature is not valid.\n");
+    }
+
+    return 0;
+}
