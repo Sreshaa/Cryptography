@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define MAX_SIZE 3
+
+int determinant(int matrix[MAX_SIZE][MAX_SIZE], int n) {
+    if (n == 2) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    } else if (n == 3) {
+        return matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
+               matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +
+               matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
+    }
+    return 0;
+}
+
+void inverseMatrix(int matrix[MAX_SIZE][MAX_SIZE], int n, int invMatrix[MAX_SIZE][MAX_SIZE], int det, int mod) {
+    if (n == 2) {
+        invMatrix[0][0] = matrix[1][1];
+        invMatrix[0][1] = -matrix[0][1];
+        invMatrix[1][0] = -matrix[1][0];
+        invMatrix[1][1] = matrix[0][0];
+    } else if (n == 3) {
+        int adjMatrix[MAX_SIZE][MAX_SIZE];
+        adjMatrix[0][0] = matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1];
+        adjMatrix[0][1] = matrix[0][2] * matrix[2][1] - matrix[0][1] * matrix[2][2];
+        adjMatrix[0][2] = matrix[0][1] * matrix[1][2] - matrix[0][2] * matrix[1][1];
+        adjMatrix[1][0] = matrix[1][2] * matrix[2][0] - matrix[1][0] * matrix[2][2];
+        adjMatrix[1][1] = matrix[0][0] * matrix[2][2] - matrix[0][2] * matrix[2][0];
+        adjMatrix[1][2] = matrix[0][2] * matrix[1][0] - matrix[0][0] * matrix[1][2];
+        adjMatrix[2][0] = matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0];
+        adjMatrix[2][1] = matrix[0][1] * matrix[2][0] - matrix[0][0] * matrix[2][1];
+        adjMatrix[2][2] = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                invMatrix[i][j] = (adjMatrix[i][j] * det) % mod;
+                if (invMatrix[i][j] < 0) {
+                    invMatrix[i][j] += mod;
+                }
+            }
+        }
+    }
+}
+
+void hillEncrypt(int keyMatrix[MAX_SIZE][MAX_SIZE], char message[], int n, int mod) {
+    int messageVector[MAX_SIZE];
+    for (int i = 0; i < strlen(message); i += n) {
+        for (int j = 0; j < n; j++) {
+            messageVector[j] = message[i + j] - 'a';
+        }
+
+        int encryptedVector[MAX_SIZE] = {0};
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < n; k++) {
+                encryptedVector[j] += keyMatrix[j][k] * messageVector[k];
+                encryptedVector[j] %= mod;
+            }
+        }
+
+        for (int j = 0; j < n; j++) {
+            printf("%c", encryptedVector[j] + 'a');
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    int n, mod;
+    printf("Enter the value of n (2 or 3): ");
+    scanf("%d", &n);
+
+    if (n != 2 && n != 3) {
+        printf("Invalid input. n should be 2 or 3.\n");
+        return 1;
+    }
+
+    printf("Enter the value of mod (26 for English alphabets): ");
+    scanf("%d", &mod);
+
+    int keyMatrix[MAX_SIZE][MAX_SIZE];
+    printf("Enter the key matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &keyMatrix[i][j]);
+            keyMatrix[i][j] %= mod;
+        }
+    }
+
+    int det = determinant(keyMatrix, n);
+    int invMatrix[MAX_SIZE][MAX_SIZE];
+    inverseMatrix(keyMatrix, n, invMatrix, det, mod);
+
+    char message[100];
+    printf("Enter the message to encrypt: ");
+    scanf("%s", message);
+
+    hillEncrypt(invMatrix, message, n, mod);
+
+    return 0;
+}
