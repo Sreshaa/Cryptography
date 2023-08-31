@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
+typedef struct {
+    uint32_t state[5];
+    uint32_t count[2];
+    uint8_t buffer[64];
+} SHA1_CTX;
+
+void SHA1Transform(uint32_t state[5], uint8_t buffer[64]) {
+    // Implement SHA-1 transformation logic
+}
+
+void SHA1Update(SHA1_CTX *context, uint8_t *data, uint32_t len) {
+    // Implement SHA-1 update logic
+}
+
+void SHA1Final(uint8_t digest[20], SHA1_CTX *context) {
+    // Implement SHA-1 finalization logic
+}
+
+void SHA1(uint8_t *data, uint32_t len, uint8_t digest[20]) {
+    // Initialize SHA-1 context
+    SHA1_CTX context;
+    SHA1Init(&context);
+
+    // Update SHA-1 context with input data
+    SHA1Update(&context, data, len);
+
+    // Finalize and get the hash output
+    SHA1Final(digest, &context);
+}
+
+int main() {
+    uint8_t input[] = "Hello, SHA-1!";
+    uint8_t output[20];
+
+    SHA1(input, strlen((char *)input), output);
+
+    printf("SHA-1 Hash: ");
+    for (int i = 0; i < 20; i++) {
+        printf("%02x", output[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
