@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+
+void vigenereEncrypt(char message[], char key[]) {
+    int messageLength = strlen(message);
+    int keyLength = strlen(key);
+
+    for (int i = 0; i < messageLength; i++) {
+        if (message[i] >= 'a' && message[i] <= 'z') {
+            message[i] = 'a' + (message[i] - 'a' + key[i % keyLength] - 'a') % 26;
+        } else if (message[i] >= 'A' && message[i] <= 'Z') {
+            message[i] = 'A' + (message[i] - 'A' + key[i % keyLength] - 'a') % 26;
+        }
+    }
+}
+
+int main() {
+    char message[100], key[100];
+
+    printf("Enter the message: ");
+    scanf("%s", message);
+
+    printf("Enter the key: ");
+    scanf("%s", key);
+
+    vigenereEncrypt(message, key);
+
+    printf("Encrypted message: %s\n", message);
+
+    return 0;
+}
